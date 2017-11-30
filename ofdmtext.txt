@@ -1,0 +1,154 @@
+Orthogonal-Frequency-Division Multiplexing (OFDM) is a method of modulating data which
+is designed to exploit the fact that narrow-band signals can easily be equalized. This modulation
+scheme is currently used in WiFi and LTE systems amongst others. OFDM systems utilize the
+Inverse-Discrete-Fourier Trnasform (IDFT), and the Discrete-Fourier Transform (DFT).
+
+II. OVERVIEW OF OFDM
+
+When communications signals have a narrow bandwidth compared to the coherence bandwidth
+of the channel (recall the coherence-bandwidth of a channel is loosely defined as the bandwidth
+over which the frequency response of a channel can be approximated as constant), the channel
+frequency response can be approximated as a single complex coefficient. In most modern systems
+however, the bandwidths required to support the high data rate demands are too large for this
+approximation to hold true. One possible way to get around this is to divide a wide bandwidth
+into multiple subchannels, where the bandwidth of each subchannel is narrow enough for this
+approximation to hold.
+Recall that the transmitted signal for a pulse-amplitude modulation (PAM) system can be
+written as follows
+
+
+akp(t − kT) (1)
+where T is the symbol period, p(t) is the pulse (e.g. a rectangular pulse of width T), and ak is
+the k-th symbol.
+Let us now extend this idea to a system where there are multiple PAM/QAM signals modulated
+
+by complex exponentials of different frequencies. Note that these frequencies are called sub-
+carrier frequencies. In almost all implementations, the modulation to subcarrier frequencies is
+
+done digitally using an IDFT. The modulation to the carrier frequency is typically done in
+the analog domain. For instance, in Wifi systems, the subcarriers are spaced by approximately
+
+250kHz and occupy a range of approximately 16MHz. The carrier frequency on the other hand
+is approximately 2.4GHz. In the following, we shall describe the basic idea of OFDM using
+continuous-time signals in order to develop intuition. We shall follow this with a Discrete-time
+development.
+Suppose that you have L PAM/QAM signals, each modulated by a complex exponential, which
+move the PAM signals into different frequencies. Let’s use akl to represent the PAM/QAM signal
+amplitude on the l-th subcarrier on the k-th symbol. Again akl could take values of ±1 or ±1±j,
+for instance. For ease of exposition, let us assume that akl can take values of ±1 here. The new
+transmitted signal is then
+
+
+where f is the spacing between the subcarriers.
+Consider the case where the pulse p(t) is a rectangle of width T with unit height. Such a
+pulse and its Fourier transform are shown in Figure 1.
+
+0 500 1000 1500 2000 2500 3000 3500 4000 4500
+0
+0.2
+0.4
+0.6
+0.8
+1
+
+0 500 1000 1500 2000 2500 3000 3500 4000 4500
+-0.4
+-0.2
+0
+0.2
+0.4
+0.6
+0.8
+1
+1.2
+S Fig. 1. Rectangular Pulse and its Fourier Transform  G
+
+Suppose that f
+
+. Then, the Fourier transform of the zeroth symbol i.e. the term inside
+
+the first summation of (2), with k = 0 is given as follows:
+
+The term in the second parenthesis on the RHS of the previous equation is a sequence of L
+impulses separated by 1
+T
+. Notice from Figure 1, that the rectangular pulse transforms into a sinc
+
+function with zero crossings every 1
+T
+. Thus X0(f) appears as shown in Figure 2. Note that for
+
+clarity, we have made all the a0l
+
+terms positive here, but they could be negative or complex.
+
+Fig. 2. Fourier transform of a single OFDM Symbol
+
+Observe that at the peak of each main-lobe, each sinc function aligns with the zeros of every
+other sinc function – this is the ”orthogonal” part of OFDM, since each subcarrier is orthogonal
+to all other subcarriers if sampled at the peak of the main-lobe. If 1
+T
+is small enough, then the
+signal from each sub-carrier can be considered narrow-band, since the mainlobe (where most of
+the energy in a sinc lies), of the sinc function associated with the signal on each subcarrier is
+narrow. Additionally, observe that the summation in (3), has a form very similar to that of the
+Inverse Discrete-Fourier Transform (IDFT). In real-world implementations of OFDM systems,
+which are done digitally, the IDFT is used to generate time domain waveforms through the IFFT
+
+operation, which is an efficient way to compute the IDFT. Therefore, one needs to understand
+the DFT and its inverse in order to be able to understand implementations of OFDM.
+
+III. DISCRETE FOURIER TRANSFORM
+
+Consider a discrete-time signal x[m] which is zero when m  0 and M  L. We shall refer
+to a signal such as this as a length-L signal. The L-point discrete Fourier transform (DFT) of
+this signal is denoted by Xk and is defined as follows:
+
+Xk =
+X
+L−1
+l=0
+w[l]e
+
+L (5)
+
+Recall that the discrete-time Fourier transform of x[m] is defined as follows
+
+
+where the second equality is due to the fact that x[m] is zero for m  0 and m  L − 1. By
+comparing (6) and (5), we see that the DFT can be interpreted as a sampled version of the
+DTFT, where the samples are taken every 2π
+L
+, because Xk is equal to X
+
+The L-point DFT of a signal x[m] is periodic with period L. In other words, if L is even, then
+
+
+The inverse operation is the L-point IDFT is defined as follows,
+
+x[m] = 1
+L
+X
+L−1
+k=0
+Xke
+2πj mk
+L (9)
+
+which recovers x[m] from Xk for m = 0, 1, 2,L − 1.
+Just like the continuous-time and discrete-time Fourier transform have a number of useful
+properties, the DFT does too. Recall that for the DTFT, multiplication in the time domain
+becomes circular (or periodic) convolution in the frequency domain. Circular convolution is
+equivalent to periodically replicating one of the two functions to be circularly convolved, and
+then performing regular convolution with the resulting functions.
+
+When two discrete-time signals are circularly convolved with period L, their DFTs are mul-
+tiplied. This property is central to OFDM. Assume the following
+
+• Define the L-point periodic extension of x[m] as x  Where
+
+Equation (11) is the main idea behind OFDM. The data are encoded in the frequency domain.
+e.g. Xk = ±1 to represent 1 bit per value of k, or Xk = ±1 ± j, for 2 bits per value of k.
+Note that this corresponds to BPSK and QPSK/4QAM. The effect of the channel becomes a
+multiplication in the frequency domain. Also note that higher order constellations are possible
+as well.
