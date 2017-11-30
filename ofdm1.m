@@ -11,28 +11,48 @@ dataflipped = dataraw -ones(1,length(dataraw));
 data = dataraw + dataflipped; 
 
 %make it into parallel arrays 
-spmatrix20 = zeros(ceil(length(data)/16), 20);
-paralleldata = serialtoParallel_20(data);
+spmatrix16 = zeros(ceil(length(data)/16), 16);
+paralleldata = serialtoParallel_16(data);
+
+%ifft here
+%IN TIME DOMAIN NOW 
+pardatafreq = ifft(paralleldata.'); %Need a transpose because ifft does it per column and we need it per row
 
 %cyclic prefix 
-fulldata = cyclicprefix4(paralleldata); %with cyclic prefix added in front
+fulldata = cyclicprefix4(pardatafreq.'); %with cyclic prefix added in front
 
-function res = cyclicprefix4(k); 
-    %make matrix of last 4 columns 
-    k(:,1:4) = k(:,17:20);
-    res = k;
+%serial to parallel and cosines 
+%each column has a different cosine
+%:,colnumber
+startfreq =2490000000;
+endfreq = 2492000000;
+cosmult = (endfreq - startfreq)/21;
+% bin = zeros(size(fulldata));
+cosinefreqs = zeros(1,20); 
+
+%so we have each cosine frequency
+for i=1:20
+    cosinefreqs(i) = cosmult*i + startfreq;
 end
 
-function res = serialtoParallel_20(x) % make the matrix of data, prepped for cyclic prefix
+
+function res = cyclicprefix4(k)
+    %make matrix of last 4 columns 
+    x(:,1:4) = k(:,13:16);
+    x(:,5:20) = k;
+    res = x;
+end
+
+function res = serialtoParallel_16(x) % make the matrix of data, prepped for cyclic prefix
     for i= 1:length(x) 
         columns = ceil(i/16); %row
         rows = mod(i, 16); %need to see which spot in the row we are at (column)
         if rows == 0 %mod so the 0th is the 16th element
             rows = 16; 
         end
-        spmatrix20(columns, rows+4)= x(i); %trust me
+        spmatrix16(columns, rows)= x(i); %trust me
     end
-    res = spmatrix20;
+    res = spmatrix16;
 end
 
 function res = stringToBits(S)
