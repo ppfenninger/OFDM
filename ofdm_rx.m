@@ -16,7 +16,6 @@ rxdata = read(highestcorr: end);
 
 %remove CP
 
-
 %fft
 
 %phase track 
