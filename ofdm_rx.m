@@ -2,40 +2,52 @@
 
 %call read_usrp_data_file 
 %have something called rx.dat
-read = read_usrp_data_file(); 
+rxinputwn = read_usrp_data_file(); 
 
-[r, lag] = xcorr(real(read), real(read));
+[r, lag] = xcorr(real(rxinputwn), real(rxinputwn));
 sorted = sortrows([lag', r], -2); 
 highestcorr = sorted(1,1);
 %start point of data to end
-rxdata = read(highestcorr: end); 
+rxdata = rxinputwn((highestcorr+10001): end); %cutting off the 10,000 white noise points 
+rxdata = rxdata'; 
+figure 
+% plot(rxdata); 
+title('Received without white noise');
 
 %carrier freq offset 
+%ignore, pretend perfect. will wire clocks together 
+
+%%%%%%%%%%%%%IN TIME%%%%%%%%%%%%%%
+
+%deal with sampling
 
 %serial to parallel 
+sym_rate = 10; 
+sym_period = 1/sym_rate;
+par_rx = serialtoParallel(rxdata, 35); %because time in TX is 35 data points long
 
 %remove CP
+par_rx_nocp = par_rx(:,5:end); %removed the cp 
 
 %fft
+frequency_rx = fft(par_rx_nocp')'; 
 
 %phase track 
 
 %parallel to serial 
+%cut off the second half of the frequency data stream 
+freq_rxcut = frequency_rx(:,1:16);
+rxserial = reshape(freq_rxcut', 1, []);
 
-%demod 
-
-function  y = read_usrp_data_file
-% read data from a file called rx.dat
-% created by rx_samples_to_file, or the file sink
-% in gnuradio-companion.
-% You have to ensure that the program that saves data from the usrp 
-% and writes it to the file writes data as  complex
-%  floating point numbers. e.g. --format float  for rx_samples_from_file
-% and complex for gnuradio companion file sink
-
-    f1 = fopen('rx.dat', 'r');
-    tmp = fread(f1,'float32');
-    fclose(f1);
-    y = tmp(1:2:end)+1i*tmp(2:2:end);
-    
+%demod from (1,-1) to (1,1)
+rxserialbits = zeros(1,length(rxserial)); 
+%for each data point: 
+for w = 1:length(rxserial)
+    if rxserial(w) >=0
+        rxserialbits(w) = 1; 
+    else
+        rxserialbits(w) = 0; 
+    end
 end
+
+string = bitsToString(rxserialbits);

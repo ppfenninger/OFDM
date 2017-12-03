@@ -6,3 +6,22 @@ function res = tx_cos(bin, cosmult, symbolrate) %bin = column
     res = signal;
 end
 
+%serial to parallel and cosines 
+%each column has a different cosine 
+% startfreq =2490000000;
+% endfreq = 2492000000;
+% cosmult = (endfreq - startfreq)/(col +1);
+% cosinefreqs = zeros(1,col); 
+% 
+% %so we have each cosine frequency
+% for i=1:col
+%     cosinefreqs(i) = cosmult*i;
+% end
+
+
+% for b = 1:col
+%     txdatamatrix(:,b) = tx_cos(fulldata(:,b), cosinefreqs(:,b), symbolrate);
+% end
+% txdatamatrix = zeros(size(fulldata)); 
+% 
+% summedtx = sum(txdatamatrix,2);
