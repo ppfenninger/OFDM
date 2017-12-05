@@ -10,6 +10,11 @@ for x = 1:length(str.textdata)
 end
 dataraw = stringToBits(s{1});
 
+%known data
+preset = load('knowndata.mat');
+knowndata = preset.known;
+dataraw = [knowndata' , dataraw];
+
 %translate from 0,1 to -1, 1
 dataflipped = dataraw -ones(1,length(dataraw));
 data = dataraw + dataflipped; 
