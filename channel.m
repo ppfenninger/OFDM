@@ -6,7 +6,7 @@ input = read_usrp_data_file('tx.dat');
 
 % put it through the channel
 
-impulseresponse = [-0.1, 1, -0.1];
+impulseresponse = [-0.5, 1, -0.5];
 channelout = conv(input, impulseresponse);
 
 % add noise

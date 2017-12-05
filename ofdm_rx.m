@@ -7,12 +7,28 @@ rxinputwn = read_usrp_data_file('rxchannel.dat');
 
 %add in the known noise 
 workspacewn = load('wn.mat');
-prn = workspacewn.prn; 
+prn = workspacewn.ans; 
 
 %cross correlate with the known noise to find start point 
 [r, lag] = xcorr(real(rxinputwn), prn);
 sorted = sortrows([lag', r], -2); 
 highestcorr = sorted(1,1);
+
+%find the channel
+%get to the fft of of the recieved known signal
+rxknown = rxinputwn((highestcorr+10001): (highestcorr+10001+350));
+par_rxknown = serialtoParallel(rxknown, 35); %because time in TX is 35 data points long
+par_rxknown_nocp = par_rxknown(:,5:end); %removed the cp 
+frequency_rxknown = fft(par_rxknown_nocp')'; 
+freq_rxknowncut = frequency_rxknown(:,1:16);
+rxknownserial = reshape(freq_rxknowncut', 1, []);
+%load known tx
+workspacetxknown = load('knowndata.mat');
+txknownserial = workspacetxknown.known; 
+
+channel = rxknownserial ./ txknownserial;
+plot(real(channel), imag(channel))
+
 
 %start point of transmitted data to end
 rxdata = rxinputwn((highestcorr+10001): end); %cutting off the 10,000 white noise points 
