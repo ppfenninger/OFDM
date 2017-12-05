@@ -15,11 +15,10 @@ noise = 0.003.*wgn(length(channelout), 1, 0);
 % plot(noise);
 rxthru = channelout + noise; 
 figure(1)
-clf;
 plot(real(input), 'r');
 hold on
 plot(real(rxthru), 'k');
-legend('input', 'through channel');
+legend('input', 'through 
 
 thruchannel = [pretransmitnoise; rxthru];
 
