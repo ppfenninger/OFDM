@@ -23,17 +23,17 @@ mirroreddata = [paralleldata, fliplr(paralleldata(:,2:end))];
 
 %ifft here
 %IN TIME DOMAIN NOW 
-pardatafreq = ifft(mirroreddata'); %Need a transpose because ifft does it per column and we need it per row
+pardatafreq = ifft(mirroreddata.'); %Need a transpose because ifft does it per column and we need it per row
 
 %cyclic prefix 
-fulldata = cyclicprefix4(pardatafreq'); %with cyclic prefix added in front
+fulldata = cyclicprefix4(pardatafreq.'); %with cyclic prefix added in front
 [r,col] = size(fulldata); 
 
 %concatenate all the rows of the matrix 
-txserial = reshape(fulldata', 1, []);
+txserial = reshape(fulldata.', 1, []);
 
 %pseudo random noise for autocorrelation 
-txdata =[prn', txserial];
+txdata =[prn.', txserial];
 z = zeros(1, 10000);
 txdatawithzeros = [z, txdata, z];
 plot(txdatawithzeros);

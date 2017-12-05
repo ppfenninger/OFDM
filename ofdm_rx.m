@@ -11,28 +11,34 @@ prn = workspacewn.ans;
 
 %cross correlate with the known noise to find start point 
 [r, lag] = xcorr(real(rxinputwn), prn);
-sorted = sortrows([lag', r], -2); 
+sorted = sortrows([lag.', r], -2); 
 highestcorr = sorted(1,1);
 
 %find the channel
 %get to the fft of of the recieved known signal
-rxknown = rxinputwn((highestcorr+10001): (highestcorr+10001+350));
+rxknown = rxinputwn((highestcorr+10001): (highestcorr+10001+349));
 par_rxknown = serialtoParallel(rxknown, 35); %because time in TX is 35 data points long
 par_rxknown_nocp = par_rxknown(:,5:end); %removed the cp 
-frequency_rxknown = fft(par_rxknown_nocp')'; 
+frequency_rxknown = fft(par_rxknown_nocp.').'; 
 freq_rxknowncut = frequency_rxknown(:,1:16);
-rxknownserial = reshape(freq_rxknowncut', 1, []);
+rxknownserial = reshape(freq_rxknowncut.', 1, []);
 %load known tx
 workspacetxknown = load('knowndata.mat');
-txknownserial = workspacetxknown.known; 
+txknownserial = workspacetxknown.known.'; 
+txknownserial = 2*txknownserial -1; %convert from 1 0 to 1 -1
 
-channel = rxknownserial ./ txknownserial;
-plot(real(channel), imag(channel))
+%average over every 16 of the channel
+H = rxknownserial ./ txknownserial;
+par_h = serialtoParallel(H, 16);
+channel = sum(par_h,1)./10;
+plot(real(H))
+hold on
+plot(real(channel))
 
 
 %start point of transmitted data to end
 rxdata = rxinputwn((highestcorr+10001): end); %cutting off the 10,000 white noise points 
-rxdata = rxdata';  
+rxdata = rxdata.';  
 
 %carrier freq offset 
 %ignore, pretend perfect. will wire clocks together 
@@ -46,14 +52,21 @@ par_rx = serialtoParallel(rxdata, 35); %because time in TX is 35 data points lon
 par_rx_nocp = par_rx(:,5:end); %removed the cp 
 
 %fft
-frequency_rx = fft(par_rx_nocp')'; 
+frequency_rx = fft(par_rx_nocp.').'; 
 
 %phase track 
 
 %parallel to serial 
 %cut off the second half of the frequency data stream 
 freq_rxcut = frequency_rx(:,1:16);
-rxserial = reshape(freq_rxcut', 1, []);
+rx_corrected = zeros(size(freq_rxcut));
+
+%divide out channel
+for y = 1:16
+   rx_corrected(:,y) = freq_rxcut(:,y)./channel(y);  
+end
+
+rxserial = reshape(freq_rxcut.', 1, []);
 
 %demod from (1,-1) to (1,0)
 rxserialbits = zeros(1,length(rxserial)); 
