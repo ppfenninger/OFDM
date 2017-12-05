@@ -1,4 +1,4 @@
-function  write_usrp_data_file( x )
+function  write_usrp_data_file(x, filename)
 % Write the complex signal into a file tx.dat, suitable for usrp 
 % transmission you will need to make sure the program used for
 % transmitting the data (e.g. tx_samples_from_file) is set to read 
@@ -12,7 +12,7 @@ function  write_usrp_data_file( x )
     tmp(1:2:end) = real(x);
     tmp(2:2:end) = imag(x);
 
-    f1 = fopen('tx.dat', 'w');
+    f1 = fopen(filename, 'w');
     fwrite(f1, tmp, 'float32');
     fclose(f1);
 

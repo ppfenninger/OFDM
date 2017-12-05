@@ -1,7 +1,7 @@
 %create binary of siddhartan's report 
 
 workspacewn = load('wn.mat');
-prn = workspacewn.prn; 
+prn = workspacewn.ans; 
 
 s = '';
 str = importdata('ofdmtext.txt');
