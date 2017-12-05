@@ -1,4 +1,8 @@
 %create binary of siddhartan's report 
+
+workspacewn = load('wn.mat');
+prn = workspacewn.prn; 
+
 s = '';
 str = importdata('ofdmtext.txt');
 for x = 1:length(str.textdata)
@@ -29,8 +33,6 @@ fulldata = cyclicprefix4(pardatafreq'); %with cyclic prefix added in front
 txserial = reshape(fulldata', 1, []);
 
 %pseudo random noise for autocorrelation 
-prn = wgn(10000,1, 1); 
- 
 txdata =[prn', txserial];
 plot(txdata);
 write_usrp_data_file(txdata); %saves into tx.dat
