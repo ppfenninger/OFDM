@@ -4,7 +4,6 @@
 
 %call read_usrp_data_file 
 rxinputwn = read_usrp_data_file('rxchannel.dat'); 
-
 %add in the known noise 
 workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
@@ -30,14 +29,15 @@ txknownserial = 2*txknownserial -1; %convert from 1 0 to 1 -1
 %average over every 16 of the channel
 H = rxknownserial ./ txknownserial;
 par_h = serialtoParallel(H, 16);
-channel = sum(par_h,1)./10;
-plot(real(H))
-hold on
-plot(real(channel))
+channelresponse = sum(par_h,1)./10;
+% figure
+% plot(real(H), 'm')
+% hold on
+% plot(real(channelresponse), 'k*')
 
 
 %start point of transmitted data to end
-rxdata = rxinputwn((highestcorr+10001): end); %cutting off the 10,000 white noise points 
+rxdata = rxinputwn((highestcorr+10001+350): end); %cutting off the 10,000 white noise points 
 rxdata = rxdata.';  
 
 %carrier freq offset 
@@ -63,7 +63,7 @@ rx_corrected = zeros(size(freq_rxcut));
 
 %divide out channel
 for y = 1:16
-   rx_corrected(:,y) = freq_rxcut(:,y)./channel(y);  
+   rx_corrected(:,y) = freq_rxcut(:,y)./channelresponse(y);  
 end
 
 rxserial = reshape(freq_rxcut.', 1, []);
