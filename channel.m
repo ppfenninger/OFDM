@@ -6,7 +6,7 @@ input = read_usrp_data_file('tx.dat');
 
 % put it through the channel
 
-impulseresponse = [-0.4, 1, -0.4];
+impulseresponse = [-0.35, 1, -0.35];
 % impulseresponse = 1;
 channelout = conv(input, impulseresponse);
 

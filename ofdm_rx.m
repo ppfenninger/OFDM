@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%IN FREQUENCY%%%%%%%%%%%%%%
 
 %call read_usrp_data_file 
-rxinputwn = read_usrp_data_file('rxchannel.dat'); 
+rxinputwn = read_usrp_data_file('rx.dat'); 
 %add in the known noise 
 workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
