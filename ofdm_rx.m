@@ -81,3 +81,14 @@ for w = 1:length(rxserial)
 end
 
 string = bitsToString(rxserialbits);
+string2 = bitsToString(datarawinput);
+%bit error rate 
+sumerrors = 0; 
+
+for w = 1:length(datarawinput)
+    if rxserialbits(w) ~= datarawinput(w)
+        sumerrors = sumerrors +1; 
+    end
+end
+
+biterrorrate = 100* sumerrors/length(dataraw);
