@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%IN FREQUENCY%%%%%%%%%%%%%%
 
 %call read_usrp_data_file 
-rxinputwn = read_usrp_data_file('rx.dat'); 
+rxinputwn = read_usrp_data_file('rxchannel.dat'); 
 %add in the known noise 
 workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
@@ -66,7 +66,7 @@ for y = 1:16
    rx_corrected(:,y) = freq_rxcut(:,y)./channelresponse(y);  
 end
 
-rxserial = reshape(freq_rxcut.', 1, []);
+rxserial = reshape(rx_corrected.', 1, []);
 
 %demod from (1,-1) to (1,0)
 rxserialbits = zeros(1,length(rxserial)); 
