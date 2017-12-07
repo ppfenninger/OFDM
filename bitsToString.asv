@@ -10,13 +10,12 @@ function res = bitsToString(B)
            end
         end
        
-       numNotChar = 0;
+       numNotChar = 0
        if ischar(bin2dec(char));
            str = strcat(str, bin2dec(char)); 
        else
-           numNotChar = numNotChar + 1; 
+           sumNotChar = numNotChar +
        end 
     end
-    disp(numNotChar); 
     res = str;
 end
