@@ -8,15 +8,33 @@ rxinputwn = read_usrp_data_file('rx.dat');
 workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
 
-%cross correlate with the known noise to find start point 
-[r, lag] = xcorr(real(rxinputwn(1425500:end)), prn);
-sorted = sortrows([lag.', r], -2); 
-highestcorr = sorted(1,1);
-
 lengthwn = 10000; 
-lengthcp = 32;
+lengthcp = 16;
 numfreqcarriers = 64;
 numknownrepeats = 10000;
+
+% look for the start of the white noise to cut off the glitch
+for i = 1:length(rxinputwn)
+    if rxinputwn(i) > 0.1
+        startpoint = i-200;
+        break;
+    end
+end
+
+%cross correlate with the known noise to find start point 
+[r, lag] = xcorr(real(rxinputwn(startpoint:end)), prn);
+sorted = sortrows([lag.', r], -2); 
+highestcorr = abs(sorted(1,1));
+
+% cut off ones at the end
+for i = (startpoint+lengthwn+numknownrepeats):length(rxinputwn)
+    if rxinputwn(i) > 0.15
+        endofsignal = i+200;
+        break;
+    end
+end
+
+
 %find the channel
 %get to the fft of of the recieved known signal
 rxknown = rxinputwn((highestcorr + lengthwn + 1): (highestcorr + lengthwn + (numfreqcarriers+lengthcp)*numknownrepeats));
@@ -41,7 +59,7 @@ channelresponse = sum(par_h,1)./numknownrepeats;
 
 
 %start point of transmitted data to end
-rxdata = rxinputwn((highestcorr + lengthzeros + (numfreqcarriers + lengthcp)*numknownrepeats + 1): end); %cutting off the 10,000 white noise points 
+rxdata = rxinputwn((highestcorr + lengthwn + (numfreqcarriers + lengthcp)*numknownrepeats + 1): end); %cutting off the 10,000 white noise points 
 rxdata = rxdata.';  
 
 %carrier freq offset 
