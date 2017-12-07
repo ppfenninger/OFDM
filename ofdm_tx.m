@@ -2,7 +2,7 @@
 
 workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
-lengthcp = 16; 
+lengthcp = 32; 
 numfreqcarriers = 64;
 
 s = '';
@@ -42,6 +42,7 @@ txserial = reshape(fulldata.', 1, []);
 %pseudo random noise for autocorrelation 
 txdata =[prn.', txserial];
 z = zeros(1, 10000);
-txdatawithzeros = [z, txdata, z];
+lotsaones = ones(1,10000);
+txdatawithzeros = [z, txdata, lotsaones];
 plot(real(txdatawithzeros));
 write_usrp_data_file(txdatawithzeros, 'tx.dat'); %saves into tx.dat

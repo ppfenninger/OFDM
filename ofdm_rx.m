@@ -3,22 +3,23 @@
 %%%%%%%%%%%%%IN FREQUENCY%%%%%%%%%%%%%%
 
 %call read_usrp_data_file 
-rxinputwn = read_usrp_data_file('rxchannel.dat'); 
+rxinputwn = read_usrp_data_file('rx.dat'); 
 %add in the known noise 
 workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
 
 %cross correlate with the known noise to find start point 
-[r, lag] = xcorr(real(rxinputwn), prn);
+[r, lag] = xcorr(real(rxinputwn(1425500:end)), prn);
 sorted = sortrows([lag.', r], -2); 
 highestcorr = sorted(1,1);
 
-lengthzeros = 10000; 
-lengthcp = 16;
+lengthwn = 10000; 
+lengthcp = 32;
 numfreqcarriers = 64;
+numknownrepeats = 10000;
 %find the channel
 %get to the fft of of the recieved known signal
-rxknown = rxinputwn((highestcorr + lengthzeros + 1): (highestcorr + lengthzeros + (numfreqcarriers+lengthcp)*10));
+rxknown = rxinputwn((highestcorr + lengthwn + 1): (highestcorr + lengthwn + (numfreqcarriers+lengthcp)*numknownrepeats));
 par_rxknown = serialtoParallel(rxknown, lengthcp + numfreqcarriers); %because time in TX is 35 data points long
 par_rxknown_nocp = par_rxknown(:,(lengthcp + 1):end); %removed the cp 
 frequency_rxknown = fft(par_rxknown_nocp.').'; 
@@ -32,7 +33,7 @@ txknownserial = 2*txknownserial -1; %convert from 1 0 to 1 -1
 %average over every 16 of the channel
 H = rxknownserial ./ txknownserial;
 par_h = serialtoParallel(H, numfreqcarriers);
-channelresponse = sum(par_h,1)./10;
+channelresponse = sum(par_h,1)./numknownrepeats;
 % figure
 % plot(real(H), 'm')
 % hold on
@@ -40,7 +41,7 @@ channelresponse = sum(par_h,1)./10;
 
 
 %start point of transmitted data to end
-rxdata = rxinputwn((highestcorr + lengthzeros + (numfreqcarriers + lengthcp)*10 + 1): end); %cutting off the 10,000 white noise points 
+rxdata = rxinputwn((highestcorr + lengthzeros + (numfreqcarriers + lengthcp)*numknownrepeats + 1): end); %cutting off the 10,000 white noise points 
 rxdata = rxdata.';  
 
 %carrier freq offset 
