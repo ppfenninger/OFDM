@@ -9,7 +9,7 @@ workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
 
 %cross correlate with the known noise to find start point 
-[r, lag] = xcorr(real(rxinputwn), prn);
+[r, lag] = xcorr(real(rxinputwn(1425500:end)), prn);
 sorted = sortrows([lag.', r], -2); 
 highestcorr = sorted(1,1);
 
