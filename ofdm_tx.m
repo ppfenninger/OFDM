@@ -2,7 +2,7 @@
 
 workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
-lengthcp = 16; 
+lengthcp = 32; 
 numfreqcarriers = 64;
 
 s = '';
