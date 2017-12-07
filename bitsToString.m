@@ -1,6 +1,5 @@
 function res = bitsToString(B)
     str = '';
-    numNotChar = 0;
     for i = 1:floor(length(B) / 8)
         charthing = '';
         for j = 1:8
@@ -11,12 +10,7 @@ function res = bitsToString(B)
            end
         end
        
-       if ischar(char(bin2dec(charthing)));
-           str = strcat(str, bin2dec(charthing)); 
-       else
-           numNotChar = numNotChar + 1; 
-       end 
+       str = strcat(str, char(bin2dec(charthing))); 
     end
-    disp(numNotChar); 
     res = str;
 end
