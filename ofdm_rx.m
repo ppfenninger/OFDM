@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%IN FREQUENCY%%%%%%%%%%%%%%
 
 %call read_usrp_data_file 
-rxinputwn = read_usrp_data_file('rx.dat'); 
+rxinputwn = read_usrp_data_file('rxchannel.dat'); 
 %add in the known noise 
 workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
@@ -59,7 +59,7 @@ channelresponse = sum(par_h,1)./numknownrepeats;
 
 
 %start point of transmitted data to end
-rxdata = rxinputwn((highestcorr + lengthwn + (numfreqcarriers + lengthcp)*numknownrepeats + 1): end); %cutting off the 10,000 white noise points 
+rxdata = rxinputwn((highestcorr + lengthwn + (numfreqcarriers + lengthcp)*numknownrepeats + 1): endofsignal); %cutting off the 10,000 white noise points 
 rxdata = rxdata.';  
 
 %carrier freq offset 

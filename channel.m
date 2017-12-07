@@ -1,7 +1,7 @@
 %channel for ofdm simulation 
 
 pretransmitnoise = wgn(1000, 1, 0);  
-
+pretransmitnoise = pretransmitnoise./100;
 input = read_usrp_data_file('tx.dat'); 
 
 % put it through the channel
