@@ -2,6 +2,8 @@
 
 workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
+lengthcp = 16; 
+numfreqcarriers = 64;
 
 s = '';
 str = importdata('ofdmtext.txt');
@@ -20,18 +22,18 @@ dataflipped = dataraw -ones(1,length(dataraw));
 data = dataraw + dataflipped; 
 
 %make it into parallel arrays 
-spmatrix16 = zeros(ceil(length(data)/16), 16);
-paralleldata = serialtoParallel_16(data);
+spmatrix16 = zeros(ceil(length(data)/numfreqcarriers), numfreqcarriers);
+paralleldata = serialtoParallel(data, numfreqcarriers);
 
 %frequency mirroring 
-mirroreddata = [paralleldata, fliplr(paralleldata(:,2:end))];
+% mirroreddata = [paralleldata, fliplr(paralleldata(:,2:end))];
 
 %ifft here
 %IN TIME DOMAIN NOW 
-pardatafreq = ifft(mirroreddata.'); %Need a transpose because ifft does it per column and we need it per row
+pardatafreq = ifft(paralleldata.'); %Need a transpose because ifft does it per column and we need it per row
 
 %cyclic prefix 
-fulldata = cyclicprefix4(pardatafreq.'); %with cyclic prefix added in front
+fulldata = cyclicprefix(pardatafreq.', lengthcp); %with cyclic prefix added in front
 [r,col] = size(fulldata); 
 
 %concatenate all the rows of the matrix 

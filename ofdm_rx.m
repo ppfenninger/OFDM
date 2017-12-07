@@ -13,13 +13,16 @@ prn = workspacewn.ans;
 sorted = sortrows([lag.', r], -2); 
 highestcorr = sorted(1,1);
 
+lengthzeros = 10000; 
+lengthcp = 16;
+numfreqcarriers = 64;
 %find the channel
 %get to the fft of of the recieved known signal
-rxknown = rxinputwn((highestcorr+10001): (highestcorr+10001+349));
-par_rxknown = serialtoParallel(rxknown, 35); %because time in TX is 35 data points long
-par_rxknown_nocp = par_rxknown(:,5:end); %removed the cp 
+rxknown = rxinputwn((highestcorr + lengthzeros): (highestcorr + lengthzeros + (numfreqcarriers+lengthcp)*10 + 1));
+par_rxknown = serialtoParallel(rxknown, lengthcp + numfreqcarriers); %because time in TX is 35 data points long
+par_rxknown_nocp = par_rxknown(:,(lengthcp + 1):end); %removed the cp 
 frequency_rxknown = fft(par_rxknown_nocp.').'; 
-freq_rxknowncut = frequency_rxknown(:,1:16);
+freq_rxknowncut = frequency_rxknown(:,1:numfreqcarriers);
 rxknownserial = reshape(freq_rxknowncut.', 1, []);
 %load known tx
 workspacetxknown = load('knowndata.mat');
@@ -28,7 +31,7 @@ txknownserial = 2*txknownserial -1; %convert from 1 0 to 1 -1
 
 %average over every 16 of the channel
 H = rxknownserial ./ txknownserial;
-par_h = serialtoParallel(H, 16);
+par_h = serialtoParallel(H, numfreqcarriers);
 channelresponse = sum(par_h,1)./10;
 % figure
 % plot(real(H), 'm')
@@ -37,7 +40,7 @@ channelresponse = sum(par_h,1)./10;
 
 
 %start point of transmitted data to end
-rxdata = rxinputwn((highestcorr+10001+350): end); %cutting off the 10,000 white noise points 
+rxdata = rxinputwn((highestcorr + lengthzeros + (numfreqcarriers + lengthcp)*10 + 1): end); %cutting off the 10,000 white noise points 
 rxdata = rxdata.';  
 
 %carrier freq offset 
@@ -46,10 +49,10 @@ rxdata = rxdata.';
 %%%%%%%%%%%%%IN TIME%%%%%%%%%%%%%%
 
 %serial to parallel 
-par_rx = serialtoParallel(rxdata, 35); %because time in TX is 35 data points long
+par_rx = serialtoParallel(rxdata, (numfreqcarriers + lengthcp)); %because time in TX is 35 data points long
 
 %remove CP
-par_rx_nocp = par_rx(:,5:end); %removed the cp 
+par_rx_nocp = par_rx(:,(lengthcp + 1):end); %removed the cp 
 
 %fft
 frequency_rx = fft(par_rx_nocp.').'; 
@@ -58,11 +61,11 @@ frequency_rx = fft(par_rx_nocp.').';
 
 %parallel to serial 
 %cut off the second half of the frequency data stream 
-freq_rxcut = frequency_rx(:,1:16);
+freq_rxcut = frequency_rx(:,1:numfreqcarriers);
 rx_corrected = zeros(size(freq_rxcut));
 
 %divide out channel
-for y = 1:16
+for y = 1:numfreqcarriers
    rx_corrected(:,y) = freq_rxcut(:,y)./channelresponse(y);  
 end
 
