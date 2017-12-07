@@ -43,5 +43,5 @@ txserial = reshape(fulldata.', 1, []);
 txdata =[prn.', txserial];
 z = zeros(1, 10000);
 txdatawithzeros = [z, txdata, z];
-plot(txdatawithzeros);
+plot(real(txdatawithzeros));
 write_usrp_data_file(txdatawithzeros, 'tx.dat'); %saves into tx.dat

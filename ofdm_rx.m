@@ -18,7 +18,7 @@ lengthcp = 16;
 numfreqcarriers = 64;
 %find the channel
 %get to the fft of of the recieved known signal
-rxknown = rxinputwn((highestcorr + lengthzeros): (highestcorr + lengthzeros + (numfreqcarriers+lengthcp)*10 + 1));
+rxknown = rxinputwn((highestcorr + lengthzeros + 1): (highestcorr + lengthzeros + (numfreqcarriers+lengthcp)*10));
 par_rxknown = serialtoParallel(rxknown, lengthcp + numfreqcarriers); %because time in TX is 35 data points long
 par_rxknown_nocp = par_rxknown(:,(lengthcp + 1):end); %removed the cp 
 frequency_rxknown = fft(par_rxknown_nocp.').'; 
