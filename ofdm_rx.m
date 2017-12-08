@@ -11,7 +11,7 @@ prn = workspacewn.ans;
 lengthwn = 10000; 
 lengthcp = 16;
 numfreqcarriers = 64;
-numknownrepeats = 1000;
+numknownrepeats = 10000;
 
 % look for the start of the white noise to cut off the glitch
 for i = 1:length(rxinputwn)
@@ -34,7 +34,7 @@ highestcorr = abs(sorted(1,1));
 %     end
 % end
 
-endofsignal = highestcorr + lengthwn + 110000;
+endofsignal = highestcorr + lengthwn + 110000 + numknownrepeats*(lengthcp+numfreqcarriers);
 
 
 %find the channel
@@ -51,7 +51,7 @@ txknownserial = workspacetxknown.known.';
 txknownserial = 2*txknownserial -1; %convert from 1 0 to 1 -1
 
 %average over every 16 of the channel
-H = rxknownserial ./ txknownserial(1:64000);
+H = rxknownserial ./ txknownserial;
 par_h = serialtoParallel(H, numfreqcarriers);
 channelresponse = sum(par_h,1)./numknownrepeats;
 % figure
