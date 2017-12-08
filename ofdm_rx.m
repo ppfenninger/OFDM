@@ -11,7 +11,7 @@ prn = workspacewn.ans;
 lengthwn = 10000; 
 lengthcp = 16;
 numfreqcarriers = 64;
-numknownrepeats = 10000;
+numknownrepeats = 1000;
 
 % look for the start of the white noise to cut off the glitch
 for i = 1:length(rxinputwn)
