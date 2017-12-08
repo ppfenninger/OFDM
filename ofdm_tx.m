@@ -16,7 +16,7 @@ datarawinput = stringToBits(s{1});
 %known data
 preset = load('knowndata.mat');
 knowndata = preset.known;
-knowndata = knowndata(1:64000);
+% knowndata = knowndata(1:64000);
 dataraw = [knowndata' , datarawinput];
 
 %translate from 0,1 to -1, 1
@@ -46,7 +46,7 @@ txdata =[prn.', txserial];
 z = zeros(1, 10000);
 % lotsaones = 0.7.*ones(1,10000);
 morenoise = wgn(1,10000,1);
-txdatawithzeros = [z, txdata, z];
+txdatawithzeros = [txdata, z];
 % txdatatesting = [3.*prn.',z,txserial,z, 3.*prn.']; 
 plot(real(txdatatesting));
 write_usrp_data_file(txdatatesting, 'tx.dat'); %saves into tx.dat
