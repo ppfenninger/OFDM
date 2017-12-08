@@ -1,2 +1,2 @@
-tx_samples_from_file.exe --gain 20 --freq 2491000000 --file tx.dat --rate 250e3 --type float --ref external 
-rx_samples_to_file.exe --gain 20 --freq 2491000000 --file rx.dat --rate 250e3 --type float --ref external 
+tx_samples_from_file.exe --gain 20 --freq 2491000000 --file tx.dat --rate 250e3 --type float --ref external --spb 1024 
+rx_samples_to_file.exe --gain 20 --freq 2491000000 --file rx.dat --rate 250e3 --type float --ref external  --spb 1024 
