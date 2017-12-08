@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%IN FREQUENCY%%%%%%%%%%%%%%
 
 %call read_usrp_data_file 
-rxinputwn = read_usrp_data_file('rx.dat'); 
+rxinputwn = read_usrp_data_file('paige3.dat'); 
 %add in the known noise 
 workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
@@ -34,6 +34,7 @@ highestcorr = abs(sorted(1,1));
 %     end
 % end
 
+highestcorr = highestcorr + startpoint;
 endofsignal = highestcorr + lengthwn + 110000 + numknownrepeats*(lengthcp+numfreqcarriers);
 
 
