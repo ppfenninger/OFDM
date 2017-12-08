@@ -15,7 +15,7 @@ numknownrepeats = 1000;
 
 % look for the start of the white noise to cut off the glitch
 for i = 1:length(rxinputwn)
-    if rxinputwn(i) > 0.1
+    if rxinputwn(i) > 3*10^(-3)
         startpoint = i-200;
         break;
     end
@@ -27,12 +27,14 @@ sorted = sortrows([lag.', r], -2);
 highestcorr = abs(sorted(1,1));
 
 % cut off ones at the end
-for i = (startpoint+lengthwn+numknownrepeats):length(rxinputwn)
-    if rxinputwn(i) > 0.15
-        endofsignal = i+200;
-        break;
-    end
-end
+% for i = (startpoint+lengthwn+numknownrepeats):length(rxinputwn)
+%     if rxinputwn(i) > 0.15
+%         endofsignal = i+200;
+%         break;
+%     end
+% end
+
+endofsignal = highestcorr + lengthwn + 110000 + numknownrepeats*(lengthcp+numfreqcarriers);
 
 
 %find the channel
