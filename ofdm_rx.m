@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%IN FREQUENCY%%%%%%%%%%%%%%
 
 %call read_usrp_data_file 
-rxinputwn = read_usrp_data_file('paige3.dat'); 
+rxinputwn = read_usrp_data_file('rx.dat'); 
 %add in the known noise 
 workspacewn = load('wn.mat');
 prn = workspacewn.ans; 
@@ -83,12 +83,11 @@ frequency_rx = fft(par_rx_nocp.').';
 
 %parallel to serial 
 %cut off the second half of the frequency data stream 
-freq_rxcut = frequency_rx(:,1:numfreqcarriers);
 rx_corrected = zeros(size(freq_rxcut));
 
 %divide out channel
 for y = 1:numfreqcarriers
-   rx_corrected(:,y) = freq_rxcut(:,y)./channelresponse(y);  
+   rx_corrected(:,y) = frequency_rx(:,y)./channelresponse(y);  
 end
 
 rxserial = reshape(rx_corrected.', 1, []);
@@ -98,7 +97,7 @@ rxserialbits = zeros(1,length(rxserial));
 
 %for each data point: 
 for w = 1:length(rxserial)
-    if rxserial(w) >=0
+    if real(rxserial(w)) >=0
         rxserialbits(w) = 1; 
     else
         rxserialbits(w) = 0; 
@@ -116,4 +115,4 @@ for w = 1:length(datarawinput)
     end
 end
 
-biterrorrate = 100* sumerrors/length(dataraw);
+biterrorrate = 100* sumerrors/length(datarawinput);
