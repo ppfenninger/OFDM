@@ -33,7 +33,7 @@ highestcorr = abs(sorted(1,1));
 %         break;
 %     end
 % end
-highestcorr = highestcorr + startpoint;
+
 endofsignal = highestcorr + lengthwn + 110000 + numknownrepeats*(lengthcp+numfreqcarriers);
 
 
@@ -115,4 +115,4 @@ for w = 1:length(datarawinput)
     end
 end
 
-biterrorrate = 100* sumerrors/length(datarawinput);
+biterrorrate = 100* sumerrors/length(dataraw);

@@ -42,11 +42,11 @@ fulldata = cyclicprefix(pardatafreq.', lengthcp); %with cyclic prefix added in f
 txserial = reshape(fulldata.', 1, []);
 
 %pseudo random noise for autocorrelation 
-txdata =[prn.', txserial, prn.'];
+txdata =[prn.', txserial];
 z = zeros(1, 10000);
 % lotsaones = 0.7.*ones(1,10000);
 morenoise = wgn(1,10000,1);
-txdatawithzeros = [z, txdata, z];
+txdatawithzeros = [txdata, z];
 % txdatatesting = [3.*prn.',z,txserial,z, 3.*prn.']; 
-plot(real(txdatawithzeros));
-write_usrp_data_file(txdatawithzeros, 'tx.dat'); %saves into tx.dat
+plot(real(txdatatesting));
+write_usrp_data_file(txdatatesting, 'tx.dat'); %saves into tx.dat
