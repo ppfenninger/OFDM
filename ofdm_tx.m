@@ -46,6 +46,7 @@ txdata =[prn.', txserial];
 z = zeros(1, 10000);
 % lotsaones = 0.7.*ones(1,10000);
 morenoise = wgn(1,10000,1);
-txdatawithzeros = [z, txdata, prn.', z];
-plot(real(txdatawithzeros));
-write_usrp_data_file(txdatawithzeros, 'tx.dat'); %saves into tx.dat
+% txdatawithzeros = [z, txdata, prn.', z];
+txdatatesting = [3.*prn.', 3.*prn.']; 
+plot(real(txdatatesting));
+write_usrp_data_file(txdatatesting, 'tx.dat'); %saves into tx.dat
