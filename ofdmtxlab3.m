@@ -28,7 +28,7 @@ txDataNoCP = [txKnownData, txDataBits];
 
 %% make it a matrix and add the CP
 txDataNoCP = 2*txDataNoCP - 1; % translates from 0 and 1 to -1 and 1
-txParDataNoCP = serialtoParallel(txDataNoCP, numfreqcarriers);
+txParDataNoCP = serialtoParallel(txDataNoCP, numFreqBins);
 
 txFreqDataNoCP = ifft(txParDataNoCP.').';
 txFreqData = cyclicprefix(txFreqDataNoCP, lengthCP); 
