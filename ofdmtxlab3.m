@@ -8,19 +8,9 @@ numKnownDataRepeats = 4;
 numDataBins = 10;
 
 %% make the initial bits
-txDataBits = zeros(1, numDataBins*lengthWN/2); 
 counter = 1; 
-for i = 1:length(txDataBits);
-    if i <= (10 + counter)*counter
-        txDataBits(i) = 0;
-    elseif i<= 10*counter + 9
-        txDataBits(i) = 1; 
-    else % last one bit, counter goes up
-        txDataBits(i) = 1;
-        counter = counter + counter;
-    end
-end
-txDataBits = [txDataBits, fliplr(txDataBits)]; 
+txDataBits = round(rand(1, 64)); 
+txDataBits = repelem(txDataBits, 10); 
 
 %% and the known data before hand
 txKnownDataWorkspace = load('knowndatalab.mat');
