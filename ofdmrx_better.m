@@ -12,7 +12,8 @@ rawInput = read_usrp_data_file('rx.dat');
 
 %% find the approximate start of the known white noise
 disp('find ~start of noise');
-threshold = mean(abs(real(rawInput(1:1000))))*100; % average value of noise - want to know when it gets above this
+% threshold = mean(abs(real(rawInput(1:1000))))*100; % average value of noise - want to know when it gets above this
+threshold = 0.1; 
 for i = 1:length(rawInput)
     if abs(rawInput(i)) > threshold
         startpoint = i - 200; % takes 200 points back from the start of the whitenoise

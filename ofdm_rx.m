@@ -15,7 +15,7 @@ numknownrepeats = 1000;
 
 % look for the start of the white noise to cut off the glitch
 for i = 1:length(rxinputwn)
-    if rxinputwn(i) > 3*10^(-3)
+    if rxinputwn(i) > 0.1
         startpoint = i-200;
         break;
     end
@@ -83,7 +83,7 @@ frequency_rx = fft(par_rx_nocp.').';
 
 %parallel to serial 
 %cut off the second half of the frequency data stream 
-rx_corrected = zeros(size(freq_rxcut));
+rx_corrected = zeros(size(frequency_rx));
 
 %divide out channel
 for y = 1:numfreqcarriers
