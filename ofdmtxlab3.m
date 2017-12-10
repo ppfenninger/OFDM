@@ -8,9 +8,11 @@ numKnownDataRepeats = 4;
 numDataBins = 10;
 
 %% make the initial bits
-counter = 1; 
-txDataBits = round(rand(1, 64)); 
-txDataBits = repelem(txDataBits, 10); 
+counter = 1;  
+txBitsWorkspace = load('txDataBits.mat'); 
+txDataBits = txBitsWorkspace.txDataBits; 
+% txDataBits = round(rand(1, 64)); 
+% txDataBits = repelem(txDataBits, 10); 
 
 %% and the known data before hand
 txKnownDataWorkspace = load('knowndatalab.mat');
