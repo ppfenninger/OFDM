@@ -23,7 +23,7 @@ txDataNoCP = [txKnownData, txDataBits];
 txDataNoCP = 2*txDataNoCP - 1; % translates from 0 and 1 to -1 and 1
 txParDataNoCP = serialtoParallel(txDataNoCP, numFreqBins);
 
-txFreqDataNoCP = ifft(txParDataNoCP.').';
+txFreqDataNoCP = ifftshift(ifft(txParDataNoCP.')).';
 txFreqData = cyclicprefix(txFreqDataNoCP, lengthCP); 
 
 txDataSerial = reshape(txFreqData.', 1, []); 
