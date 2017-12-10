@@ -83,6 +83,8 @@ disp('demod');
 %for each data point, estimate the bit
 
 estimateBits = zeros(size(estimateData));
+% estimateData = pskdemod(estimateData, 2); 
+% estimateData = estimateData*-1 + 1; 
 for w = 1:length(estimateData)
     if estimateData(w) >= 0
         estimateBits(w) = 1; 
@@ -90,8 +92,8 @@ for w = 1:length(estimateData)
         estimateBits(w) = 0; 
     end
 end
+% estimateBits = estimateData; 
 
-% estimateBits = pskdemod(estimateData,64);
 
 string = bitsToString(estimateBits);
 % string2 = bitsToString(datarawinput);
