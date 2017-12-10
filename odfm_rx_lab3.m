@@ -4,7 +4,7 @@
 disp('data conditions');
 
 % Read in variables
-rawInput = read_usrp_data_file('rx.dat'); 
+rawInput = read_usrp_data_file('rxchannel.dat'); 
 % getting known white noise from data file
 knownWhiteNoiseWorkSpace = load('wnlab.mat'); % this is a workspace that has the whitenoise
 knownWN = knownWhiteNoiseWorkSpace.wn; % this is the known white noise
@@ -18,13 +18,14 @@ numKnownSymbols = 4; % known data length is numKnownSymbols*numFreqBins
 %% find the approximate start of the known white noise
 disp('find ~start of noise');
 % threshold = mean(abs(real(rawInput(1:1000))))*100; % average value of noise - want to know when it gets above this
-threshold = 0.1; 
-for i = 1:length(rawInput)
-    if abs(rawInput(i)) > threshold
-        startpoint = i - 200; % takes 200 points back from the start of the whitenoise
-        break; % we don't need to keep going
-    end
-end
+threshold = 0.1;
+startpoint = 1; 
+% for i = 1:length(rawInput)
+%     if abs(rawInput(i)) > threshold
+%         startpoint = i - 200; % takes 200 points back from the start of the whitenoise
+%         break; % we don't need to keep going
+%     end
+% end
 rawInputWithoutBlip = rawInput(startpoint:end); 
 
 %% find start of white noise using xcorr
@@ -41,7 +42,7 @@ disp('calculate channel with known');
 knownData = rxData(1:(numKnownSymbols*(numFreqBins + lengthCP))); % this is the known data that we send before the actual data
 parKnownDataWithCP = serialtoParallel(knownData, (lengthCP + numFreqBins)); %turning it into a matrix with lengthCP + numFreqBins columns
 parKnownData = parKnownDataWithCP(:, (lengthCP + 1):end); % removed the columns that contain the CP
-freqKnownData = fftshift(fft(parKnownData.')).'; % put fftshift here if you want it fftshift(fft(parKnownData.')).'
+freqKnownData = fft(parKnownData.').'; % put fftshift here if you want it fftshift(fft(parKnownData.')).'
 rxKnownData = reshape(freqKnownData.', 1, []); 
 
 % load known data
@@ -60,18 +61,18 @@ channelResponse = sum(parH, 1)./numKnownSymbols; % The average of every set of f
 
 %% Recover data - time domain 
 disp('Recovery time');
-data = rxData((numKnownSymbols*(numFreqBins + lengthCP+1)):end);
+data = rxData((numKnownSymbols*(numFreqBins + lengthCP) + 1):end);
 parDataWithCP = serialtoParallel(data, (lengthCP + numFreqBins));
 parData = parDataWithCP(:,(lengthCP + 1):end);
 
-freqParData = fftshift(fft(parData.')).'; % get into the frequency domain 
+freqParData = fft(parData.').'; % get into the frequency domain 
 
 %% Frequency domain recovery 
 disp('Freq recovery');
 parEstimateData = zeros(size(freqParData));
 
 for x = 1:numFreqBins
-    parEstimateData(:,x) = freqParData(:,x).*channelResponse(x);
+    parEstimateData(:,x) = freqParData(:,x)./channelResponse(x);
 end
 
 estimateData = reshape(parEstimateData.', 1, []);
@@ -81,16 +82,16 @@ estimateData = estimateData(1:640);
 disp('demod');
 %for each data point, estimate the bit
 
-% estimateBits = zeros(size(estimateData));
-% for w = 1:length(estimateData)
-%     if real(estimateData(w)) >= 0
-%         estimateBits(w) = 1; 
-%     else
-%         estimateBits(w) = 0; 
-%     end
-% end
+estimateBits = zeros(size(estimateData));
+for w = 1:length(estimateData)
+    if estimateData(w) >= 0
+        estimateBits(w) = 1; 
+    else
+        estimateBits(w) = 0; 
+    end
+end
 
-estimateBits = pskdemod(estimateData,64);
+% estimateBits = pskdemod(estimateData,64);
 
 string = bitsToString(estimateBits);
 % string2 = bitsToString(datarawinput);

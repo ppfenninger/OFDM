@@ -16,11 +16,11 @@ txDataBits = txBitsWorkspace.txDataBits;
 
 %% and the known data before hand
 txKnownDataWorkspace = load('knowndatalab.mat');
-txKnownData = ones(1, 64*4); %txKnownDataWorkspace.known;
+txKnownData = txKnownDataWorkspace.known;
 txDataNoCP = [txKnownData, txDataBits];
 
 %% make it a matrix and add the CP
-txDataNoCP = 3.*(2*txDataNoCP - 1); % translates from 0 and 1 to -1 and 1
+txDataNoCP = (2*txDataNoCP - 1); % translates from 0 and 1 to -1 and 1
 txParDataNoCP = serialtoParallel(txDataNoCP, numFreqBins);
 
 txFreqDataNoCP = ifft(txParDataNoCP.').';
