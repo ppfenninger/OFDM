@@ -41,7 +41,7 @@ disp('calculate channel with known');
 knownData = rxData(1:(numKnownSymbols*(numFreqBins + lengthCP))); % this is the known data that we send before the actual data
 parKnownDataWithCP = serialtoParallel(knownData, (lengthCP + numFreqBins)); %turning it into a matrix with lengthCP + numFreqBins columns
 parKnownData = parKnownDataWithCP(:, (lengthCP + 1):end); % removed the columns that contain the CP
-freqKnownData = fftshirt(fft(parKnownData.').'); % put fftshift here if you want it fftshift(fft(parKnownData.')).'
+freqKnownData = fftshift(fft(parKnownData.').'); % put fftshift here if you want it fftshift(fft(parKnownData.')).'
 rxKnownData = reshape(freqKnownData.', 1, []); 
 
 % load known data
