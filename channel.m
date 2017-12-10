@@ -2,11 +2,11 @@
 
 pretransmitnoise = wgn(1000, 1, 0);  
 pretransmitnoise = pretransmitnoise./100;
-input = read_usrp_data_file('tx.dat'); 
+input = read_usrp_data_file('txlab.dat'); 
 
 % put it through the channel
 
-impulseresponse = [-0.3, 1, -0.4, -0.1, -0.4, -0.3, -0.5, -0.2, -0.1, -0.5, 1, -0.2, -0.15, -0.33, -0.8];
+impulseresponse = [-0.3, 1, -0.4]; %, -0.1, -0.4, -0.3, -0.5, -0.2, -0.1, -0.5, 1, -0.2, -0.15, -0.33, -0.8];
 
 % impulseresponse = 1;
 channelout = conv(input, impulseresponse);
