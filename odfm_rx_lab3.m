@@ -4,7 +4,7 @@
 disp('data conditions');
 
 % Read in variables
-rawInput = read_usrp_data_file('rxchannel.dat'); 
+rawInput = read_usrp_data_file('rx.dat'); 
 % getting known white noise from data file
 knownWhiteNoiseWorkSpace = load('wnlab.mat'); % this is a workspace that has the whitenoise
 knownWN = knownWhiteNoiseWorkSpace.wn; % this is the known white noise
@@ -83,6 +83,8 @@ disp('demod');
 %for each data point, estimate the bit
 
 estimateBits = zeros(size(estimateData));
+% estimateData = pskdemod(estimateData, 2); 
+% estimateData = estimateData*-1 + 1; 
 for w = 1:length(estimateData)
     if estimateData(w) >= 0
         estimateBits(w) = 1; 
@@ -90,8 +92,8 @@ for w = 1:length(estimateData)
         estimateBits(w) = 0; 
     end
 end
+% estimateBits = estimateData; 
 
-% estimateBits = pskdemod(estimateData,64);
 
 string = bitsToString(estimateBits);
 % string2 = bitsToString(datarawinput);
