@@ -41,7 +41,7 @@ disp('calculate channel with known');
 knownData = rxData(1:(numKnownSymbols*(numFreqBins + lengthCP))); % this is the known data that we send before the actual data
 parKnownDataWithCP = serialtoParallel(knownData, (lengthCP + numFreqBins)); %turning it into a matrix with lengthCP + numFreqBins columns
 parKnownData = parKnownDataWithCP(:, (lengthCP + 1):end); % removed the columns that contain the CP
-freqKnownData = fftshift(fft(parKnownData.').'); % put fftshift here if you want it fftshift(fft(parKnownData.')).'
+freqKnownData = fftshift(fft(parKnownData.')).'; % put fftshift here if you want it fftshift(fft(parKnownData.')).'
 rxKnownData = reshape(freqKnownData.', 1, []); 
 
 % load known data
@@ -50,7 +50,8 @@ txKnownData = txKnownDataWorkspace.known; % transpose it because we screwed up m
 txKnownData = 2.*txKnownData - 1; % converts from 0 and 1 to -1 and 1
 
 % now we estimate the channel response
-H = rxKnownData./txKnownData; % finds the channel
+% H = abs(rxKnownData./txKnownData); % finds the channel
+H = abs(rxKnownData);
 parH = serialtoParallel(H, numFreqBins); 
 channelResponse = sum(parH, 1)./numKnownSymbols; % The average of every set of frequency bins
 
@@ -63,7 +64,7 @@ data = rxData((numKnownSymbols*(numFreqBins + lengthCP+1)):end);
 parDataWithCP = serialtoParallel(data, (lengthCP + numFreqBins));
 parData = parDataWithCP(:,(lengthCP + 1):end);
 
-freqParData = fft(parData.').'; % get into the frequency domain 
+freqParData = fftshift(fft(parData.')).'; % get into the frequency domain 
 
 %% Frequency domain recovery 
 disp('Freq recovery');
@@ -80,14 +81,16 @@ estimateData = estimateData(1:640);
 disp('demod');
 %for each data point, estimate the bit
 
-estimateBits = zeros(size(estimateData));
-for w = 1:length(estimateData)
-    if real(estimateData(w)) >= 0
-        estimateBits(w) = 1; 
-    else
-        estimateBits(w) = 0; 
-    end
-end
+% estimateBits = zeros(size(estimateData));
+% for w = 1:length(estimateData)
+%     if real(estimateData(w)) >= 0
+%         estimateBits(w) = 1; 
+%     else
+%         estimateBits(w) = 0; 
+%     end
+% end
+
+estimateBits = pskdemod(estimateData,64);
 
 string = bitsToString(estimateBits);
 % string2 = bitsToString(datarawinput);
