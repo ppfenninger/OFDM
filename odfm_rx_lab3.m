@@ -4,7 +4,7 @@
 disp('data conditions');
 
 % Read in variables
-rawInput = read_usrp_data_file('rxchannel.dat'); 
+rawInput = read_usrp_data_file('rx.dat'); 
 % getting known white noise from data file
 knownWhiteNoiseWorkSpace = load('wnlab.mat'); % this is a workspace that has the whitenoise
 knownWN = knownWhiteNoiseWorkSpace.wn; % this is the known white noise
