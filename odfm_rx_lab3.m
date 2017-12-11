@@ -49,51 +49,52 @@ txKnownData = 2.*txKnownData - 1; % converts from 0 and 1 to -1 and 1
 fullEstimateData = zeros(1,320*numDataSections);
 
 %cut off crap at end
-rxData = rxData(1:(numDataBins+numKnownSymbols)*(lengthCP+numFreqBins));
+rxData = rxData(1:(numDataBins+numKnownSymbols*numDataSections)*(lengthCP+numFreqBins));
 
-parRxData = reshape(rxData, [(numDataBins+numKnownSymbols)*(lengthCP+numFreqBins)/numDataSections, numDataSections]).'; 
-parRxKnown = parRxData(:,1:numKnownSymbols*(numFreqBins + lengthCP)); %first half of matrix (col wise) is known
-parRxData = parRxData(:,numKnownSymbols*(numFreqBins + lengthCP)+1:end); %second half of matrix is data
+%parRx = reshape(rxData, [(numDataBins+numKnownSymbols)*(lengthCP+numFreqBins), numDataSections]).'; 
+parRx = reshape(rxData, [length(rxData)/numDataSections, numDataSections]).'; 
+parRxKnown = parRx(:,1:numKnownSymbols*(numFreqBins + lengthCP)); %first half of matrix (col wise) is known
+parRxData = parRx(:,numKnownSymbols*(numFreqBins + lengthCP)+1:end); %second half of matrix is data
 
 for i = 1:numDataSections
-knownData = parRxKnown(i,:); % this is the known data that we send before the actual data
-parKnownDataWithCP = serialtoParallel(knownData, (lengthCP + numFreqBins)); %turning it into a matrix with lengthCP + numFreqBins columns
-parKnownData = parKnownDataWithCP(:, (lengthCP + 1):end); % removed the columns that contain the CP
-freqKnownData = fft(parKnownData.').'; % put fftshift here if you want it fftshift(fft(parKnownData.')).'
-rxKnownData = reshape(freqKnownData.', 1, []); 
+    knownData = parRxKnown(i,:); % this is the known data that we send before the actual data
+    parKnownDataWithCP = serialtoParallel(knownData, (lengthCP + numFreqBins)); %turning it into a matrix with lengthCP + numFreqBins columns
+    parKnownData = parKnownDataWithCP(:, (lengthCP + 1):end); % removed the columns that contain the CP
+    freqKnownData = fft(parKnownData.').'; % put fftshift here if you want it fftshift(fft(parKnownData.')).'
+    rxKnownData = reshape(freqKnownData.', 1, []); 
 
-% now we estimate the channel response
-H = abs(rxKnownData./txKnownData); % finds the channel
-parH = serialtoParallel(H, numFreqBins); 
-channelResponse = sum(parH, 1)./numKnownSymbols; % The average of every set of frequency bins
+    % now we estimate the channel response
+    H = abs(rxKnownData./txKnownData); % finds the channel
+    parH = serialtoParallel(H, numFreqBins); 
+    channelResponse = sum(parH, 1)./numKnownSymbols; % The average of every set of frequency bins
 
-%% Recover data - time domain 
-disp('Recovery time');
-data = parRxData(i,:);
-parDataWithCP = serialtoParallel(data, (lengthCP + numFreqBins));
-parData = parDataWithCP(:,(lengthCP + 1):end);
+    %% Recover data - time domain 
+    disp('Recovery time');
+    data = parRxData(i,:);
+    parDataWithCP = serialtoParallel(data, (lengthCP + numFreqBins));
+    parData = parDataWithCP(:,(lengthCP + 1):end);
 
-freqParData = fft(parData.').'; % get into the frequency domain 
+    freqParData = fft(parData.').'; % get into the frequency domain 
 
-%% Frequency domain recovery 
-disp('Freq recovery');
-parEstimateData = zeros(size(freqParData));
+    %% Frequency domain recovery 
+    disp('Freq recovery');
+    parEstimateData = zeros(size(freqParData));
 
-for x = 1:numFreqBins
-    parEstimateData(:,x) = freqParData(:,x)./channelResponse(x);
-end
+    for x = 1:numFreqBins
+        parEstimateData(:,x) = freqParData(:,x)./channelResponse(x);
+    end
 
-estimateData = reshape(parEstimateData.', 1, []);
-fullEstimateData((320*(i-1) + 1):320*i) = estimateData;
+    estimateData = reshape(parEstimateData.', 1, []);
+    fullEstimateData((320*(i-1) + 1):320*i) = estimateData;
 end
 
 %% demodulation 
 disp('demod');
 %for each data point, estimate the bit
 
-estimateBits = zeros(size(estimateData));
-for w = 1:length(estimateData)
-    if estimateData(w) <= 0
+estimateBits = zeros(size(fullEstimateData));
+for w = 1:length(fullEstimateData)
+    if fullEstimateData(w) >= 0
         estimateBits(w) = 1; 
     else
         estimateBits(w) = 0; 
