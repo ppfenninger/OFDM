@@ -18,10 +18,12 @@ numDataSections = 2;
 numDataBins = 10;
 
 %% find the approximate start of the known white noise
+%get rid of the blip!
 disp('find ~start of noise');
 % threshold = mean(abs(real(rawInput(1:1000))))*100; % average value of noise - want to know when it gets above this
 threshold = 0.1;
 startpoint = 1; 
+% % it's working without bc we have no blip right now. 
 % for i = 1:length(rawInput)
 %     if abs(rawInput(i)) > threshold
 %         startpoint = i - 200; % takes 200 points back from the start of the whitenoise
@@ -51,7 +53,7 @@ fullEstimateData = zeros(1,320*numDataSections);
 %cut off crap at end
 rxData = rxData(1:(numDataBins+numKnownSymbols*numDataSections)*(lengthCP+numFreqBins));
 
-%parRx = reshape(rxData, [(numDataBins+numKnownSymbols)*(lengthCP+numFreqBins), numDataSections]).'; 
+%parse the rx'd because it's known-data-known-data 
 parRx = reshape(rxData, [length(rxData)/numDataSections, numDataSections]).'; 
 parRxKnown = parRx(:,1:numKnownSymbols*(numFreqBins + lengthCP)); %first half of matrix (col wise) is known
 parRxData = parRx(:,numKnownSymbols*(numFreqBins + lengthCP)+1:end); %second half of matrix is data
@@ -87,14 +89,18 @@ for i = 1:numDataSections
     estimateData = reshape(parEstimateData.', 1, []);
     fullEstimateData((320*(i-1) + 1):320*i) = estimateData;
 end
+%%remove bad channel points 
+chopEstimate = serialtoParallel(fullEstimateData, 64); 
+goodEstimate = [chopEstimate(:,1:29), chopEstimate(:,36:end)];
+goodEstimateSerial = reshape(goodEstimate, 1, []);
 
-%% demodulation 
+%% demodulation
 disp('demod');
-%for each data point, estimate the bit
 
-estimateBits = zeros(size(fullEstimateData));
-for w = 1:length(fullEstimateData)
-    if fullEstimateData(w) >= 0
+%for each data point, estimate the bit
+estimateBits = zeros(size(goodEstimateSerial));
+for w = 1:length(goodEstimateSerial)
+    if goodEstimateSerial(w) >= 0
         estimateBits(w) = 1; 
     else
         estimateBits(w) = 0; 
@@ -111,7 +117,7 @@ disp('how wrong are we');
 sumerrors = 0; 
 txDataBits = load('txDataBits.mat');
 txDataBits = txDataBits.txDataBits;
-for w = 1:length(txDataBits)
+for w = 1:length(goodEstimateSerial)
    if estimateBits(w) ~= txDataBits(w)
        sumerrors = sumerrors +1;
    end
