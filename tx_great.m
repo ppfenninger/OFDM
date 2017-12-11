@@ -5,7 +5,7 @@ lengthWN = 64; % no cyclic prefix
 numWNRepeats = 3; % lenthWN is repeated this many times
 lengthKnownData = 64; % without CP
 numKnownDataRepeats = 4;
-numDataSections = 6;
+numDataSections = 3;
 numDataBins = 5*numDataSections;
 
 %% make the initial bits
