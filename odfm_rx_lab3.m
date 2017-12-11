@@ -4,7 +4,7 @@
 disp('data conditions');
 
 % Read in variables
-rawInput = read_usrp_data_file('rx.dat'); 
+rawInput = read_usrp_data_file('rxchannel.dat'); 
 % getting known white noise from data file
 knownWhiteNoiseWorkSpace = load('wnlab.mat'); % this is a workspace that has the whitenoise
 knownWN = knownWhiteNoiseWorkSpace.wn; % this is the known white noise
@@ -92,7 +92,7 @@ end
 %%remove bad channel points 
 chopEstimate = serialtoParallel(fullEstimateData, 64); 
 goodEstimate = [chopEstimate(:,1:29), chopEstimate(:,36:end)];
-goodEstimateSerial = reshape(goodEstimate, 1, []);
+goodEstimateSerial = reshape(goodEstimate.', 1, []);
 
 %% demodulation
 disp('demod');
@@ -123,5 +123,5 @@ for w = 1:length(goodEstimateSerial)
    end
 end
 
-biterrorrate = 100*sumerrors/length(txDataBits);
+biterrorrate = 100*sumerrors/length(goodEstimateSerial);
 disp(biterrorrate);

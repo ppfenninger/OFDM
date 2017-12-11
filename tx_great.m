@@ -7,8 +7,6 @@ lengthKnownData = 64; % without CP
 numKnownDataRepeats = 4; 
 numDataBins = 10;
 numDataSections = 2;
-startBad = 30;
-endBad = 35;
 
 %% make the initial bits
 counter = 1;  
@@ -20,15 +18,10 @@ txDataBits = txBitsWorkspace.txDataBits;
 %% and the known data before hand
 txKnownDataWorkspace = load('knowndatalab.mat');
 txKnownData = txKnownDataWorkspace.known;
-
-txDataNo33 = txDataBits;
-% txDataNo33 = serialtoParallel(txDataBits, (startBad - 1) + (numFreqBins - endBad));
-% txDataNo33 = [txDataNo33(:, 1:(startBad - 1)), ones(ceil(length(txDataBits)/((startBad - 1) + (numFreqBins - endBad))), (endBad - startBad + 1)), txDataNo33(:, (startBad):(end))]; 
-% txDataNo33 = reshape(txDataNo33.', 1, []);
-% txDataNo33 = txDataNo33(1:numFreqBins*numDataBins);
 txDataNoCP = []; %[txKnownData, txDataBits(1:length(txDataBits)/2), txKnownData, txDataBits((length(txDataBits)/2 + 1):end)];
+
 for i = 1:numDataSections
-    txDataNoCP = [txDataNoCP, txKnownData, txDataNo33(((i-1)*length(txDataNo33)/numDataSections + 1):(i*length(txDataNo33)/numDataSections))]; %#ok<*AGROW>
+    txDataNoCP = [txDataNoCP, txKnownData, txDataBits(((i-1)*length(txDataBits)/numDataSections + 1):(i*length(txDataBits)/numDataSections))]; %#ok<*AGROW>
 end
 
 %% make it a matrix and add the CP
