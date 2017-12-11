@@ -17,7 +17,7 @@ txDataBits = txBitsWorkspace.txDataBits;
 %% and the known data before hand
 txKnownDataWorkspace = load('knowndatalab.mat');
 txKnownData = txKnownDataWorkspace.known;
-txDataNoCP = [txKnownData, txDataBits];
+txDataNoCP = [txKnownData, txDataBits(1:length(txDataBits)/2), txKnownData, txDataBits((length(txDataBits)/2 + 1):end)];
 
 %% make it a matrix and add the CP
 txDataNoCP = (2*txDataNoCP - 1); % translates from 0 and 1 to -1 and 1
