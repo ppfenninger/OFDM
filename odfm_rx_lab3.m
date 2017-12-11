@@ -90,17 +90,21 @@ for i = 1:numDataSections
     fullEstimateData((320*(i-1) + 1):320*i) = estimateData;
 end
 %%remove bad channel points 
-chopEstimate = serialtoParallel(fullEstimateData, 64); 
-goodEstimate = [chopEstimate(:,1:29), chopEstimate(:,36:end)];
-goodEstimateSerial = reshape(goodEstimate, 1, []);
+% chopEstimate = serialtoParallel(fullEstimateData, 64); 
+% goodEstimate = [chopEstimate(:,1:29), chopEstimate(:,36:end)];
+% goodEstimateSerial = reshape(goodEstimate.', 1, []);
 
 %% demodulation
 disp('demod');
 
 %for each data point, estimate the bit
-estimateBits = zeros(size(goodEstimateSerial));
-for w = 1:length(goodEstimateSerial)
-    if goodEstimateSerial(w) >= 0
+% estimateBits = zeros(size(goodEstimateSerial));
+estimateBits = zeros(size(fullEstimateData));
+% for w = 1:length(goodEstimateSerial)
+for w = 1:length(fullEstimateData)
+
+    %if goodEstimateSerial(w) >= 0
+    if fullEstimateData(w) >= 0
         estimateBits(w) = 1; 
     else
         estimateBits(w) = 0; 
@@ -117,11 +121,14 @@ disp('how wrong are we');
 sumerrors = 0; 
 txDataBits = load('txDataBits.mat');
 txDataBits = txDataBits.txDataBits;
-for w = 1:length(goodEstimateSerial)
-   if estimateBits(w) ~= txDataBits(w)
+% for w = 1:length(goodEstimateSerial)
+for w = 1:length(fullEstimateData)
+    if estimateBits(w) ~= txDataBits(w)
        sumerrors = sumerrors +1;
    end
 end
 
-biterrorrate = 100*sumerrors/length(txDataBits);
+%biterrorrate = 100*sumerrors/length(goodEstimateSerial);
+biterrorrate = 100*sumerrors/length(fullEstimateData);
+
 disp(biterrorrate);
