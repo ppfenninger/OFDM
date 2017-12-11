@@ -4,7 +4,7 @@
 disp('data conditions');
 
 % Read in variables
-rawInput = read_usrp_data_file('rxchannel.dat'); 
+rawInput = read_usrp_data_file('rx.dat'); 
 % getting known white noise from data file
 knownWhiteNoiseWorkSpace = load('wnlab.mat'); % this is a workspace that has the whitenoise
 knownWN = knownWhiteNoiseWorkSpace.wn; % this is the known white noise
@@ -18,12 +18,10 @@ numDataSections = 2;
 numDataBins = 10;
 
 %% find the approximate start of the known white noise
-%get rid of the blip!
 disp('find ~start of noise');
 % threshold = mean(abs(real(rawInput(1:1000))))*100; % average value of noise - want to know when it gets above this
 threshold = 0.1;
 startpoint = 1; 
-% % it's working without bc we have no blip right now. 
 % for i = 1:length(rawInput)
 %     if abs(rawInput(i)) > threshold
 %         startpoint = i - 200; % takes 200 points back from the start of the whitenoise
@@ -53,7 +51,7 @@ fullEstimateData = zeros(1,320*numDataSections);
 %cut off crap at end
 rxData = rxData(1:(numDataBins+numKnownSymbols*numDataSections)*(lengthCP+numFreqBins));
 
-%parse the rx'd because it's known-data-known-data 
+%parRx = reshape(rxData, [(numDataBins+numKnownSymbols)*(lengthCP+numFreqBins), numDataSections]).'; 
 parRx = reshape(rxData, [length(rxData)/numDataSections, numDataSections]).'; 
 parRxKnown = parRx(:,1:numKnownSymbols*(numFreqBins + lengthCP)); %first half of matrix (col wise) is known
 parRxData = parRx(:,numKnownSymbols*(numFreqBins + lengthCP)+1:end); %second half of matrix is data
@@ -89,21 +87,13 @@ for i = 1:numDataSections
     estimateData = reshape(parEstimateData.', 1, []);
     fullEstimateData((320*(i-1) + 1):320*i) = estimateData;
 end
-%%remove bad channel points 
-% chopEstimate = serialtoParallel(fullEstimateData, 64); 
-% goodEstimate = [chopEstimate(:,1:29), chopEstimate(:,36:end)];
-% goodEstimateSerial = reshape(goodEstimate.', 1, []);
 
-%% demodulation
+%% demodulation 
 disp('demod');
-
 %for each data point, estimate the bit
-% estimateBits = zeros(size(goodEstimateSerial));
-estimateBits = zeros(size(fullEstimateData));
-% for w = 1:length(goodEstimateSerial)
-for w = 1:length(fullEstimateData)
 
-    %if goodEstimateSerial(w) >= 0
+estimateBits = zeros(size(fullEstimateData));
+for w = 1:length(fullEstimateData)
     if fullEstimateData(w) >= 0
         estimateBits(w) = 1; 
     else
@@ -121,18 +111,11 @@ disp('how wrong are we');
 sumerrors = 0; 
 txDataBits = load('txDataBits.mat');
 txDataBits = txDataBits.txDataBits;
-% for w = 1:length(goodEstimateSerial)
-for w = 1:length(fullEstimateData)
-    if estimateBits(w) ~= txDataBits(w)
+for w = 1:length(txDataBits)
+   if estimateBits(w) ~= txDataBits(w)
        sumerrors = sumerrors +1;
    end
 end
 
-<<<<<<< HEAD
-biterrorrate = 100*sumerrors/length(goodEstimateSerial);
-=======
-%biterrorrate = 100*sumerrors/length(goodEstimateSerial);
-biterrorrate = 100*sumerrors/length(fullEstimateData);
-
->>>>>>> f73beea55103460310ca93389665efa836ac6709
+biterrorrate = 100*sumerrors/length(txDataBits);
 disp(biterrorrate);
