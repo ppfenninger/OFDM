@@ -128,11 +128,4 @@ for w = 1:length(fullEstimateData)
    end
 end
 
-<<<<<<< HEAD
 biterrorrate = 100*sumerrors/length(goodEstimateSerial);
-=======
-%biterrorrate = 100*sumerrors/length(goodEstimateSerial);
-biterrorrate = 100*sumerrors/length(fullEstimateData);
-
->>>>>>> f73beea55103460310ca93389665efa836ac6709
-disp(biterrorrate);

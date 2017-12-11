@@ -4,13 +4,13 @@ numFreqBins = 64;
 lengthWN = 64; % no cyclic prefix
 numWNRepeats = 3; % lenthWN is repeated this many times
 lengthKnownData = 64; % without CP
-numKnownDataRepeats = 4; 
-numDataBins = 10;
-numDataSections = 2;
+numKnownDataRepeats = 4;
+numDataSections = 6;
+numDataBins = 5*numDataSections;
 
 %% make the initial bits
 counter = 1;  
-txBitsWorkspace = load('txDataBits.mat'); 
+txBitsWorkspace = load('txDataBits.mat');  
 txDataBits = txBitsWorkspace.txDataBits; 
 % txDataBits = round(rand(1, 64)); 
 % txDataBits = repelem(txDataBits, 10); 
@@ -21,7 +21,7 @@ txKnownData = txKnownDataWorkspace.known;
 txDataNoCP = []; %[txKnownData, txDataBits(1:length(txDataBits)/2), txKnownData, txDataBits((length(txDataBits)/2 + 1):end)];
 
 for i = 1:numDataSections
-    txDataNoCP = [txDataNoCP, txKnownData, txDataBits(((i-1)*length(txDataBits)/numDataSections + 1):(i*length(txDataBits)/numDataSections))]; %#ok<*AGROW>
+    txDataNoCP = [txDataNoCP, txKnownData, txDataBits(((i-1)*(numFreqBins*numDataBins)/numDataSections + 1):(i*(numFreqBins*numDataBins)/numDataSections))]; %#ok<*AGROW>
 end
 
 %% make it a matrix and add the CP
