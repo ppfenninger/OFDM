@@ -14,6 +14,8 @@ numWNRep = 3;
 lengthCP = 16; 
 numFreqBins = 64; %number of frequency carriers
 numKnownSymbols = 4; % known data length is numKnownSymbols*numFreqBins 
+numDataSections = 2; 
+numDataBins = 10;
 
 %% find the approximate start of the known white noise
 disp('find ~start of noise');
@@ -35,33 +37,39 @@ disp('xcorr white noise');
 sorted = sortrows([lag.', abs(r)], -2); % sorting the correlation values from highest to lowest (-2 sorts the second column in descending order)
 highestCorrLocation = abs(sorted(1,1)); % taking the locaiton of the highest correlation value
 
-rxData = rawInputWithoutBlip((highestCorrLocation + numWNRep*lengthKnownWN + 1):end); % only keeps things before the white noise
+rxData = rawInputWithoutBlip((highestCorrLocation + numWNRep*lengthKnownWN + 1):end); % only keeps things after the white noise
 
 %% calculate channel response using known data
 disp('calculate channel with known');
-knownData = rxData(1:(numKnownSymbols*(numFreqBins + lengthCP))); % this is the known data that we send before the actual data
-parKnownDataWithCP = serialtoParallel(knownData, (lengthCP + numFreqBins)); %turning it into a matrix with lengthCP + numFreqBins columns
-parKnownData = parKnownDataWithCP(:, (lengthCP + 1):end); % removed the columns that contain the CP
-freqKnownData = fft(parKnownData.').'; % put fftshift here if you want it fftshift(fft(parKnownData.')).'
-rxKnownData = reshape(freqKnownData.', 1, []); 
 
 % load known data
 txKnownDataWorkspace = load('knowndatalab.mat');
 txKnownData = txKnownDataWorkspace.known; % transpose it because we screwed up making known data
 txKnownData = 2.*txKnownData - 1; % converts from 0 and 1 to -1 and 1
+fullEstimateData = zeros(1,320*numDataSections);
+
+%cut off crap at end
+rxData = rxData(1:(numDataBins+numKnownSymbols)*(lengthCP+numFreqBins));
+
+parRxData = reshape(rxData, [(numDataBins+numKnownSymbols)*(lengthCP+numFreqBins)/numDataSections, numDataSections]).'; 
+parRxKnown = parRxData(:,1:numKnownSymbols*(numFreqBins + lengthCP)); %first half of matrix (col wise) is known
+parRxData = parRxData(:,numKnownSymbols*(numFreqBins + lengthCP)+1:end); %second half of matrix is data
+
+for i = 1:numDataSections
+knownData = parRxKnown(i,:); % this is the known data that we send before the actual data
+parKnownDataWithCP = serialtoParallel(knownData, (lengthCP + numFreqBins)); %turning it into a matrix with lengthCP + numFreqBins columns
+parKnownData = parKnownDataWithCP(:, (lengthCP + 1):end); % removed the columns that contain the CP
+freqKnownData = fft(parKnownData.').'; % put fftshift here if you want it fftshift(fft(parKnownData.')).'
+rxKnownData = reshape(freqKnownData.', 1, []); 
 
 % now we estimate the channel response
-% H = abs(rxKnownData./txKnownData); % finds the channel
-H = abs(rxKnownData);
+H = abs(rxKnownData./txKnownData); % finds the channel
 parH = serialtoParallel(H, numFreqBins); 
 channelResponse = sum(parH, 1)./numKnownSymbols; % The average of every set of frequency bins
 
-% plot(real(rxKnownData));
-% plot(real(channelResponse)); 
-
 %% Recover data - time domain 
 disp('Recovery time');
-data = rxData((numKnownSymbols*(numFreqBins + lengthCP) + 1):end);
+data = parRxData(i,:);
 parDataWithCP = serialtoParallel(data, (lengthCP + numFreqBins));
 parData = parDataWithCP(:,(lengthCP + 1):end);
 
@@ -76,7 +84,8 @@ for x = 1:numFreqBins
 end
 
 estimateData = reshape(parEstimateData.', 1, []);
-estimateData = estimateData(1:640);
+fullEstimateData((320*(i-1) + 1):320*i) = estimateData;
+end
 
 %% demodulation 
 disp('demod');
@@ -84,7 +93,7 @@ disp('demod');
 
 estimateBits = zeros(size(estimateData));
 for w = 1:length(estimateData)
-    if estimateData(w) >= 0
+    if estimateData(w) <= 0
         estimateBits(w) = 1; 
     else
         estimateBits(w) = 0; 
