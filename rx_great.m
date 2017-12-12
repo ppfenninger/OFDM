@@ -14,8 +14,9 @@ numWNRep = 3;
 lengthCP = 16; 
 numFreqBins = 64; %number of frequency carriers
 numKnownSymbols = 4; % known data length is numKnownSymbols*numFreqBins 
-numDataSections = 2; 
-numDataBins = 10;
+numDataSections = 3; 
+numDataBins = 5*numDataSections;
+%increment in 320 blocks 
 
 %% find the approximate start of the known white noise
 disp('find ~start of noise');
@@ -93,16 +94,22 @@ disp('demod');
 %for each data point, estimate the bit
 
 estimateBits = zeros(size(fullEstimateData));
+
+
 for w = 1:length(fullEstimateData)
-    if fullEstimateData(w) >= 0
+    if fullEstimateData(w) <= 0
         estimateBits(w) = 1; 
     else
         estimateBits(w) = 0; 
     end
 end
 
-% estimateBits = pskdemod(estimateData,64);
-
+   
+%know the first one, take sign start from there
+if estimateBits(1) ~=0; 
+    estimateBits = -1*estimateBits +1; 
+end
+    
 string = bitsToString(estimateBits);
 % string2 = bitsToString(datarawinput);
 
