@@ -8,12 +8,12 @@ numfreqcarriers = 64;
 
 s = '';
 str = importdata('ofdmtext.txt');
+
 for x = 1:length(str.textdata)
    % s = strcat(s, str.textdata(x)); 
-   stringcell = str.textdata(x);
-   s = s + stringcell{1};
+   s = strcat(s, str.textdata{x});
 end
-
+stringdata = convertCharsToStrings(s);
 datarawinput = stringToBits(s{1});
 
 %known data
